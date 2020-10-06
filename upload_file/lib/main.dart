@@ -5,6 +5,8 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'dart:io';
 
+import 'package:upload_file/list_images.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -13,6 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -36,18 +39,31 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Upload Image')),
-      body: Column(
-        children: <Widget>[
-          (imageUrl != null)
-              ? Image.network(imageUrl)
-              : Placeholder(fallbackHeight: 200.0,fallbackWidth: double.infinity),
-          SizedBox(height: 20.0,),
-          RaisedButton(
-            child: Text('Upload Image'),
-            color: Colors.lightBlue,
-            onPressed: () => uploadImage(),
-          )
-        ],
+      body: Center(
+        child: Column(
+          children: <Widget>[
+            SizedBox(height: 30,),
+            (imageUrl != null)
+                ? Image.network(imageUrl,width: double.infinity,height:200,)
+                : Placeholder(fallbackHeight: 200.0,fallbackWidth: double.infinity),
+            SizedBox(height: 20.0,),
+            RaisedButton(
+              child: Text('Upload Image'),
+              color: Colors.lightBlue,
+              onPressed: () => uploadImage(),
+            ),
+            SizedBox(height: 30,),
+            GestureDetector(
+              onTap: (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ListImages()),
+                );
+              },
+              child: Text('List Images',style: TextStyle(fontSize: 19,color: Colors.blueGrey,decoration: TextDecoration.underline,),),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -71,7 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
       if (image != null){
         //Upload to Firebase
         var snapshot = await _storage.ref()
-            .child('folderName/image_${getTime()}')
+            .child('images/image_${getTime()}')
             .putFile(file)
             .onComplete;
 
@@ -79,6 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
         setState(() {
           imageUrl = downloadUrl;
+          print("imageUrl $imageUrl");
         });
       } else {
         print('No Path Received');
